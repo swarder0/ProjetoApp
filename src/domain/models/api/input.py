@@ -49,7 +49,7 @@ class FullnameInput(BaseModel):
         if len(v) > 150:
             raise ValueError("Name length must not exceed 150 characters")
         return v
-    
+
     @field_validator("name")
     @classmethod
     def name_must_contain_only_letters_and_spaces(cls, v):
