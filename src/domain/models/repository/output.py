@@ -47,7 +47,6 @@ class EmailModel(BaseModel):
 
 class ClientCadastro(BaseModel):
     name: Optional[str] = None
-    tax_id: str
     birth_date: Optional[str] = None
     cellphone: Optional[PhoneModel] = None
     address: Optional[AddressModel] = None
@@ -84,7 +83,6 @@ class ClientModel(BaseModel):
         }
         birth_date = client.birth_date
         payload = {
-            "tax_id": client.tax_id,
             "name": client.name,
             "preferred_name": client.name,
             "birth_date": birth_date,
@@ -112,6 +110,5 @@ class ClientModel(BaseModel):
 
 class HashModel(BaseModelEncoder):
     id: PyObjectId = Field(default_factory=ObjectId, alias="_id")
-    tax_id: str
     key: str
     

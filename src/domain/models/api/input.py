@@ -9,16 +9,7 @@ from validate_docbr import CPF
 class CreateClientInput(BaseModel):
     device_id: str
     device_type: str
-    tax_id: str
     terms_accepted: bool
-
-    @field_validator("tax_id" , mode="after")
-    @classmethod
-    def clean_tax_id(cls, v):
-        cleaned_value = v.replace(".", "").replace("-", "")
-        if not CPF().validate(cleaned_value):
-            raise ValueError("Invalid tax_id")
-        return v
     
     @field_validator("terms_accepted", mode="after")
     @classmethod
@@ -101,16 +92,7 @@ class AddressInput(BaseModel):
     zip_code: str
 
 class GetClientInput(BaseModel):
-    tax_id: Optional[str] = None
     client_id: Optional[str] = None
-
-    @field_validator("tax_id" , mode="after")
-    @classmethod
-    def clean_tax_id(cls, v):
-        cleaned_value = v.replace(".", "").replace("-", "")
-        if not CPF().validate(cleaned_value):
-            raise ValueError("Invalid tax_id")
-        return v
     
     @field_validator("client_id", mode="after")
     @classmethod

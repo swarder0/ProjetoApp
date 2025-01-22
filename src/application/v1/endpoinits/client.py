@@ -2,6 +2,8 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Header, HTTPException
 
+from domain.models.api.output import ApiResponseOutput, ClientResponseOutput
+
 router = APIRouter(
     tags=["cadastro"],
     responses={
@@ -24,6 +26,7 @@ async def get_cadastro():
     "/cadastro",
     summary="Criar cadastro",
     description="Cria um novo cadastro",
+    response_model=ClientResponseOutput,
     )
 async def create_client_cadaster():
 
@@ -43,6 +46,7 @@ async def delete_client_cadaster():
     "/cadastro/fullname",
     summary="Atualizar nome",
     description="Atualiza um cadastro com o nome completo do cliente",
+    response_model=ApiResponseOutput,
     )
 async def fullname():
 
@@ -52,6 +56,7 @@ async def fullname():
         "/cadastro/birth_date",
         summary="Atualizar data de nascimento",
         description="Atualiza um cadastro com a data de nascimento do cliente",
+        response_model=ApiResponseOutput,
 )
 async def birth_date():
 
@@ -61,6 +66,7 @@ async def birth_date():
         "/cadastro/phone",
         summary="Atualizar telefone",
         description="Atualiza um cadastro com o telefone do cliente",
+        response_model=ApiResponseOutput,
 )
 async def phone():
 
@@ -70,6 +76,7 @@ async def phone():
         "/cadastro/address",
         summary="Atualizar endereço",
         description="Atualiza um cadastro com o endereço do cliente",
+        response_model=ApiResponseOutput,
 )
 async def address():
 
@@ -79,6 +86,7 @@ async def address():
         "/cadastro/email",
         summary="Atualizar email",
         description="Atualiza um cadastro com o email do cliente",
+        response_model=ApiResponseOutput,
 )
 async def email():
 
@@ -89,6 +97,7 @@ async def email():
         "/cadastro/password",
         summary="Atualizar senha",
         description="Atualiza um cadastro com a senha do cliente",
+        response_model=ApiResponseOutput,
 )
 async def password():
 
