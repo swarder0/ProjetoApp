@@ -13,9 +13,9 @@ class DatabaseClientInterface(metaclass=abc.ABCMeta):
     async def get_one(self, *args, **kwargs):
         raise NotImplementedError
     
-    @abc.abstractmethod
-    async def get_many(self, *args, **kwargs):
-        raise NotImplementedError
+    # @abc.abstractmethod
+    # async def get_many(self, *args, **kwargs):
+    #     raise NotImplementedError
     
     @abc.abstractmethod
     async def delete(self, *args, **kwargs):

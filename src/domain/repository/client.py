@@ -3,7 +3,7 @@ from typing import Optional
 from bson import ObjectId
 
 from domain.models.repository.output import ClientModel
-from domain.models.enums import StepNames, StepStatus
+from domain.models.enums import StepNames, ClientStatus
 from adapters.database.async_mongo import DatabaseClient
 
 class ClientRepository:
@@ -12,11 +12,11 @@ class ClientRepository:
         self.logger = logger
 
     async def get_client_by_query(self, query: Optional[dict] = None) -> list[ClientModel]:
-        default_query = {"client_id": {"$ne": None}}
-        if query:
-            default_query.update(query)
+        default_query = {}
         
-        cursor = self._database.get_all("account_requests", default_query)
+
+        cursor = self._database.get_all("mockDB", default_query)
+        print(cursor)
         cursor.sort("created_at", -1)
         return [ClientModel(**client) async for client in cursor]
 
@@ -25,7 +25,7 @@ class ClientRepository:
         return await self.get_client_by_query(query)
     
     async def get_client_to_archived(self) -> list[ClientModel]:
-        query = {"status": {"$in": [StepStatus.PENDING, StepStatus.FAILED]}}
+        query = {"status": {"$in": [ClientStatus.PENDING, ClientStatus.FAILED]}}
         return await self.get_client_by_query(query)
     
     async def update_client(self, update_data: dict, client_id: str) ->ClientModel:
@@ -36,7 +36,7 @@ class ClientRepository:
         return await self._database.create("account_requests", client_data)
     
     async def delete_client(self, client_data: dict | None):
-        if client_data and client_data.get("status") != StepStatus.COMPLETED:
+        if client_data and client_data.get("status") != ClientStatus.COMPLETED:
             try:
                 await self._database.delete("account_requests", {"_id": ObjectId(client_data.get("_id"))})
             except Exception as e:

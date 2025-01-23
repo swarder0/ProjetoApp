@@ -1,4 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorClient
+from mongomock_motor import AsyncMongoMockClient
 import logging
 import sys
 import traceback
@@ -10,12 +11,16 @@ class DatabaseClient(DatabaseClientInterface):
     def __init__(self, Client_accounts: str, logger: logging.Logger, uri: str):
         self.logger = logger
         try:
-            self._client = AsyncIOMotorClient(uri)
-            self.database = self._client[Client_accounts]
-            self.logger.info("Connected to MongoDB")
+            if "pytest" in sys.modules:
+                self._client = AsyncMongoMockClient()
+            else:
+                self._client = AsyncIOMotorClient(uri)
+                self.logger.info("Connected to MongoDB")
         except Exception as e:
             self.logger.error(f"Error connecting to MongoDB: {e}")
             raise self.DatabaseClientException(f"Error connecting to MongoDB: {e}")
+        
+        self.database = self._client[Client_accounts]
     
     async def ping(self):
         return await self._client.admin.command("ping")

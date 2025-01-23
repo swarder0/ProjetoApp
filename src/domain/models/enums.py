@@ -14,7 +14,7 @@ class StepNames(str, Enum):
     PHONE = "phone"
     ADDRESS = "address"
     BIRTH_DATE = "birth_date"
-class StepStatus(str, Enum):
+class ClientStatus(str, Enum):
     PENDING = "pending"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -22,3 +22,6 @@ class StepStatus(str, Enum):
 class ErrorMessageMixin:
     code: str
     message: str
+
+class ErrorMessage(ErrorMessageMixin):
+    pass
