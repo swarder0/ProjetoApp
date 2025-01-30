@@ -9,10 +9,6 @@ from domain.models.enums import AccountStatus, ClientStatus
 from adapters.database.async_mongo import DatabaseClient
 
 @pytest.fixture
-def mock_database_client():
-    return AsyncMock()
-
-@pytest.fixture
 def mock_logger():
     return MagicMock()
 
@@ -27,50 +23,71 @@ def mongo_mock():
 
 @pytest.mark.asyncio
 async def test_get_client_by_query(client_repository, mongo_mock):
-    # Mock data
+
     mock_data = ClientModel(name="Test Client", device_id="device123", device_type="typeA", status=AccountStatus.ACTIVE)
     await mongo_mock.create("mockDB", mock_data.model_dump(by_alias=True))
-
-    # Call method
     result = await client_repository.get_client_by_query()
 
-    # Assertions
     assert len(result) == 1
     assert isinstance(result[0], ClientModel)
 
-# @pytest.mark.asyncio
-# async def test_update_client(client_repository, mock_database_client, random_objectid):
-#     # Mock data
-#     client_id = random_objectid
-#     update_data = {"name": "Updated Client"}
-#     mock_data = {"client_id": client_id, "name": "Updated Client", "device_id": "device123", "device_type": "typeA", "status": AccountStatus.ACTIVE}
-#     mock_database_client.update.return_value = mock_data
+@pytest.fixture
+def random_objectid():
+    return ObjectId()
 
-#     # Call method
-#     result = await client_repository.update_client(update_data, client_id)
+@pytest.mark.asyncio
+async def test_update_client(client_repository, mongo_mock, random_objectid):
 
-#     # Assertions
-#     assert result.name == "Updated Client"
+    client_id = str(random_objectid)
+    update_data = {"status": AccountStatus.INACTIVE}
+    mock_data = {
+        "client_id": client_id,  
+        "device_id": "device123", 
+        "device_type": "typeA", 
+        "status": AccountStatus.ACTIVE
+    }
+    collection_mock = AsyncMock()
+    collection_mock.update_one = AsyncMock(return_value=AsyncMock(matched_count=1))
+    collection_mock.find_one = AsyncMock(return_value=mock_data)
+    mongo_mock.get_collection = MagicMock(return_value=collection_mock)
+    client_repository._database.update = AsyncMock(return_value=mock_data)
+    result = await client_repository.update_client(update_data, client_id)
 
-# @pytest.mark.asyncio
-# async def test_create_client(client_repository, mock_database_client):
-#     # Mock data
-#     client_data = {"client_id": "123", "name": "New Client", "device_id": "device123", "device_type": "typeA", "status": AccountStatus.ACTIVE}
-#     mock_database_client.create.return_value = client_data
+    assert result.id == ObjectId(client_id)
+    assert result.device_id == "device123"
+    assert result.device_type == "typeA"
+    assert result.status == AccountStatus.ACTIVE
+    client_repository._database.update.assert_called_once()
 
-#     # Call method
-#     result = await client_repository.create_client(client_data)
+@pytest.mark.asyncio
+async def test_create_client(client_repository, mongo_mock, random_objectid):
 
-#     # Assertions
-#     assert isinstance(result, ClientModel)
-#     assert result.client_id == "123"
-#     assert result.name == "New Client"
+    client_id = str(random_objectid)
+    mock_data = ClientModel(
+        id=client_id,
+        name="Test Client",
+        device_id="device123", 
+        device_type="typeA", 
+        status=AccountStatus.ACTIVE)
 
-# @pytest.mark.asyncio
-# async def test_delete_client(client_repository, mock_database_client, mock_logger, random_objectid):
-#     # Mock data
-#     client_data = {"_id": random_objectid, "status": ClientStatus.PENDING}
-#     mock_database_client.delete.return_value = None
 
-#     # Call method
-#     await client_repository.delete_client(client_data)
+    collection_mock = AsyncMock()
+    collection_mock.insert_one = AsyncMock(return_value=AsyncMock(inserted_id=client_id))
+    mongo_mock.get_collection = MagicMock(return_value=collection_mock)
+    client_repository._database.create = AsyncMock(return_value=mock_data)
+    result = await client_repository.create_client(mock_data)
+
+    assert result.id == ObjectId(client_id)
+    assert result.device_id == "device123"  # Verifica o valor correto do mock
+    assert result.device_type == "typeA"
+    assert result.status == AccountStatus.ACTIVE
+    client_repository._database.create.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_delete_client(client_repository, mongo_mock, random_objectid):
+
+    client_data = {"_id": random_objectid}
+
+    mongo_mock.delete = AsyncMock(return_value=None)
+    await client_repository.delete_client(client_data)
+    mongo_mock.delete.assert_called_once_with('account_requests', client_data)

@@ -55,7 +55,7 @@ class ClientCadastro(BaseModel):
 
 class ClientModel(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
-    id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id", serialization_alias="_id")
+    id: PydanticObjectId = Field(default_factory=ObjectId, alias="client_id", serialization_alias="_id")
     client: Optional[ClientCadastro] = None
     archived: Optional[ArchiveModel] = None
     geo_location: Optional[GeoPointModel] = None
