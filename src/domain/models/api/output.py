@@ -1,9 +1,9 @@
 from typing import Any, Optional
 
 
-from domain.models.common import BaseModelEncoder
-from domain.models.repository.output import ClientModel
-from domain.models.usecases.output import StepModelOutput
+from src.domain.models.common import BaseModelEncoder
+from src.domain.models.repository.output import ClientModel
+from src.domain.models.usecases.output import StepModelOutput
 
 
 class ApiResponseOutput(BaseModelEncoder):

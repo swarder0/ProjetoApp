@@ -5,7 +5,7 @@ from typing import Optional
 from bson import ObjectId
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from domain.models.common import (
+from src.domain.models.common import (
     BaseModelEncoder, 
     AddressModel,
     ClientValidationErrors,
