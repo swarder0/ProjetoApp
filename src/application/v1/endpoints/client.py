@@ -2,6 +2,8 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Header, HTTPException
 
+from src.domain.models.api.input import FullnameInput
+from src.domain.usecase.fullname import FullnameUseCase
 from src.domain.models.api.output import ApiResponseOutput, ClientResponseOutput
 
 router = APIRouter(
@@ -49,15 +51,16 @@ async def delete_client_cadaster():
         description="Atualiza um cadastro com o nome completo do cliente",
         response_model=ApiResponseOutput,
 )
-async def fullname():
-
-        return {"message": "Inserindo nome do client"}
+async def fullname(body: FullnameInput) -> ClientResponseOutput:
+        usecase = await FullnameUseCase.init(cache = None, logger = None)
+        client = await usecase.process(body)
+        return ClientResponseOutput(data=client)
 
 @router.post(
         "/cadastro/birth_date",
         summary="Atualizar data de nascimento",
         description="Atualiza um cadastro com a data de nascimento do cliente",
-        response_model=ApiResponseOutput,
+        # response_model=ApiResponseOutput,
 )
 async def birth_date():
 
@@ -67,7 +70,7 @@ async def birth_date():
         "/cadastro/phone",
         summary="Atualizar telefone",
         description="Atualiza um cadastro com o telefone do cliente",
-        response_model=ApiResponseOutput,
+        # response_model=ApiResponseOutput,
 )
 async def phone():
 
@@ -77,7 +80,7 @@ async def phone():
         "/cadastro/address",
         summary="Atualizar endereço",
         description="Atualiza um cadastro com o endereço do cliente",
-        response_model=ApiResponseOutput,
+        # response_model=ApiResponseOutput,
 )
 async def address():
 
@@ -87,7 +90,7 @@ async def address():
         "/cadastro/email",
         summary="Atualizar email",
         description="Atualiza um cadastro com o email do cliente",
-        response_model=ApiResponseOutput,
+        # response_model=ApiResponseOutput,
 )
 async def email():
 
@@ -97,7 +100,7 @@ async def email():
         "/cadastro/password",
         summary="Atualizar senha",
         description="Atualiza um cadastro com a senha do cliente",
-        response_model=ApiResponseOutput,
+        # response_model=ApiResponseOutput,
 )
 async def password():
 

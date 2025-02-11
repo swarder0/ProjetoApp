@@ -2,9 +2,10 @@ from typing import Optional
 
 from bson import ObjectId
 
-from domain.models.repository.output import ClientModel
-from domain.models.enums import StepNames, ClientStatus
-from adapters.database.async_mongo import DatabaseClient
+from src.domain.exceptions.exceptions import ClientNotFoundException
+from src.domain.models.repository.output import ClientModel
+from src.domain.models.enums import StepNames, ClientStatus
+from src.adapters.database.async_mongo import DatabaseClient
 
 class ClientRepository:
     def __init__(self, database_client: DatabaseClient, logger) -> None:
@@ -19,6 +20,15 @@ class ClientRepository:
         print(cursor)
         cursor.sort("created_at", -1)
         return [ClientModel(**client) async for client in cursor]
+
+    async def get_client_by_name(self, name: str) -> ClientModel:
+        cursor = await self._database.get_all("account_requests", {"client.name": name})
+        cursor.sort("created_at", -1) # type: ignore
+        client = await cursor.to_list(length=1)
+        if not client:
+            raise ClientNotFoundException({"name": name})
+
+        return ClientModel(**client[0])
 
     async def get_clients_by_client_ids(self, client_ids: list[str]) -> dict:
         query = {"client_id": {"$in": client_ids}}

@@ -1,28 +1,43 @@
 import logging
 import sys
 from abc import ABCMeta, abstractmethod
+from unittest import mock
 
 from pydantic import BaseModel
 
-from domain.models.repository.output import ClientModel
+from src.adapters.cache.cache_interfaces import CacheInterface
+from src.domain.exceptions.exceptions import ClientNotFoundException
+from src.domain.models.repository.output import ClientModel
+from src.domain.services.client_service import ClientService
 
 class UseCaseInterface(metaclass=ABCMeta):
 
-    def __init__(self, logger: logging.Logger = None):
-        self.logger = logger or logging.getLogger(
-            f"{self.__module__}.{self.__class__.__name__}"
-        )
-        self.logger.setLevel(logging.DEBUG)
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
-    
+    def __init__(
+            self, cache: CacheInterface, 
+            logger: logging.Logger, 
+            client_service: ClientService
+) -> None:
+        self.cache = cache
+        self.logger = logger
+        self.client_service = client_service
+
+    @classmethod
+    async def init(
+        cls, 
+        cache: CacheInterface, 
+        logger: logging.Logger, 
+        client_service: ClientService
+):
+        if "pytest" in sys.argv[0]:
+            return cls(cache, logger, mock.Mock(), client_service)
+
+        return cls(cache, logger, client_service)
+
+
     async def _get_client_by_hash(self, x_client_hash: str) -> ClientModel:
-        client = await ClientModel.get(x_client_hash=x_client_hash)
+        client = await self.client_service.get_client_by_hash(x_client_hash)
         if not client:
-            raise Exception("Client not found")
+            raise ClientNotFoundException({"x_client_hash": x_client_hash})
         return client
 
     @abstractmethod

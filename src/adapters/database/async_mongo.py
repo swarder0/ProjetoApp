@@ -4,7 +4,7 @@ import logging
 import sys
 import traceback
 from typing import Optional
-from adapters.database.database_interfaces import DatabaseClientInterface
+from src.adapters.database.database_interfaces import DatabaseClientInterface
 from pymongo import ReturnDocument
 
 class DatabaseClient(DatabaseClientInterface):
