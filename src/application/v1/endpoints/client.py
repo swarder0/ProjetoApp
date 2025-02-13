@@ -1,10 +1,18 @@
+import logging
 from http import HTTPStatus
 
 from fastapi import APIRouter, Header, HTTPException
 
-from src.domain.models.api.input import FullnameInput
+from src.containers import Containers
+from src.domain.usecase.create_hash import CreateHashUseCase
+from src.domain.models.api.input import CreateHashInput, FullnameInput
 from src.domain.usecase.fullname import FullnameUseCase
-from src.domain.models.api.output import ApiResponseOutput, ClientResponseOutput
+from src.domain.models.api.output import ApiResponseOutput, ClientResponseOutput, CreateHashApiResponseOutput
+
+
+
+container = Containers()
+
 
 router = APIRouter(
     tags=["cadastro"],
@@ -16,30 +24,42 @@ router = APIRouter(
 )
 
 @router.get(
-    "/cadastro",
-    summary="Cadastro",
-    description="Visualizar um cadastro do cliente pelo login",
-    )
+        "/cadastro",
+        summary="Cadastro",
+        description="Visualizar um cadastro do cliente pelo login",
+)
 async def get_cadastro():
         
         return {"message": "Cadastro de usuários"}
 
 @router.post(
-    "/cadastro",
-    summary="Criar cadastro",
-    description="Cria um novo cadastro",
-    response_model=ClientResponseOutput,
-    )
+        "/cadastro/hash",
+        summary="Criar hash",
+        description="Cria um novo hash por usuario",
+        response_model=CreateHashApiResponseOutput,
+)
+async def create_hash_cadaster(body: CreateHashInput) -> CreateHashApiResponseOutput:
+        usecase = await CreateHashUseCase.init(
+                container.cache , container.logger, container.client_service
+        )
+        result = await usecase.process(body)
+        return CreateHashApiResponseOutput(data=result)
+
+@router.post(
+        "/cadastro",
+        summary="Criar cadastro",
+        description="Cria um novo cadastro",
+        response_model=ClientResponseOutput,
+)
 async def create_client_cadaster():
-        
 
         return {"message": "Cadastro de usuários"}
 
 @router.delete(
-    "/cadastro",
-    summary="Deletar cadastro",
-    description="Deleta um cadastro",
-    )
+        "/cadastro",
+        summary="Deletar cadastro",
+        description="Deleta um cadastro",
+)
 
 async def delete_client_cadaster():
 
@@ -51,10 +71,12 @@ async def delete_client_cadaster():
         description="Atualiza um cadastro com o nome completo do cliente",
         response_model=ApiResponseOutput,
 )
-async def fullname(body: FullnameInput) -> ClientResponseOutput:
-        usecase = await FullnameUseCase.init(cache = None, logger = None)
-        client = await usecase.process(body)
-        return ClientResponseOutput(data=client)
+async def fullname(body: FullnameInput, x_client_hash: str = Header(...)) -> ApiResponseOutput:
+        usecase = await FullnameUseCase.init(
+                container.cache, container.logger, container.client_service
+        )
+        result = await usecase.process(body, x_client_hash)
+        return ApiResponseOutput(data=result)
 
 @router.post(
         "/cadastro/birth_date",

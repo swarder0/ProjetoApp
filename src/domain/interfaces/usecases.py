@@ -13,7 +13,8 @@ from src.domain.services.client_service import ClientService
 class UseCaseInterface(metaclass=ABCMeta):
 
     def __init__(
-            self, cache: CacheInterface, 
+            self, 
+            cache: CacheInterface, 
             logger: logging.Logger, 
             client_service: ClientService
 ) -> None:

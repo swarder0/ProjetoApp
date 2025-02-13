@@ -18,6 +18,7 @@ class ClientStatus(str, Enum):
     PENDING = "pending"
     COMPLETED = "completed"
     FAILED = "failed"
+    ABANDONED = "abandoned"
 @dataclass
 class ErrorMessageMixin:
     code: str

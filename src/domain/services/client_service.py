@@ -20,6 +20,6 @@ class ClientService:
     async def get_client_by_hash(self, x_client_hash: str)-> Optional[ClientModel]:
         client = None
         with suppress(ClientNotFoundException):
-            name = await self.get_name_by_hash(x_client_hash)
+            name = self.get_name_by_hash(x_client_hash)
             client = await self.client_repository.get_client_by_name(name)
         return client

@@ -5,11 +5,37 @@ from bson import ObjectId
 from pydantic import BaseModel, EmailStr, field_validator
 from validate_docbr import CPF
 
+class CreateHashInput(BaseModel):
+    name: str
+    device_id: str
+    device_type: str
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v):
+        if not v.strip():
+            raise ValueError("Name cannot be empty")
+        return v
+    
+    @field_validator("name")
+    @classmethod
+    def name_length_must_not_exceed_150_characters(cls, v):
+        if len(v) > 150:
+            raise ValueError("Name length must not exceed 150 characters")
+        return v
+
+    @field_validator("name")
+    @classmethod
+    def name_must_contain_only_letters_and_spaces(cls, v):
+        if not all(char.isalpha() or char.isspace() for char in v):
+            raise ValueError("Name must contain only letters and spaces")
+        return v
 
 class CreateClientInput(BaseModel):
     device_id: str
     device_type: str
     terms_accepted: bool
+    version: Optional[int] = None
     
     @field_validator("terms_accepted", mode="after")
     @classmethod

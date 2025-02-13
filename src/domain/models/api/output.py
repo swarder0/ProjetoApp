@@ -11,7 +11,14 @@ class ApiResponseOutput(BaseModelEncoder):
     notice: Optional[list[Any]] = None
     data: StepModelOutput
 
+class HashOutput(BaseModelEncoder):
+    key: str
 
+class CreateHashApiResponseOutput(ApiResponseOutput):
+    data: HashOutput
 
 class ClientResponseOutput(ApiResponseOutput):
-    data: ClientModel
+    data: ClientModel | dict
+
+class CreateHashApiResponseOutput(ApiResponseOutput):
+    data: HashOutput

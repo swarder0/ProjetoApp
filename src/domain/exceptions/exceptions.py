@@ -6,7 +6,9 @@ class BaseNotFoundException(Exception):
     def __init__(self, param: dict, message: str):
         self.param = param
         self.message = message
-
+class HashNotFoundException(BaseNotFoundException):
+    def __init__(self, param: dict):
+        super().__init__(param, "Hash not found")
 class ClientNotFoundException(BaseNotFoundException):
     def __init__(self, param: dict):
         super().__init__(param, "Client not found")

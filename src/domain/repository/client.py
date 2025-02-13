@@ -1,9 +1,9 @@
-from typing import Optional
+from typing import Optional, overload
 
 from bson import ObjectId
 
-from src.domain.exceptions.exceptions import ClientNotFoundException
-from src.domain.models.repository.output import ClientModel
+from src.domain.exceptions.exceptions import ClientNotFoundException, HashNotFoundException
+from src.domain.models.repository.output import ClientModel, HashModel
 from src.domain.models.enums import StepNames, ClientStatus
 from src.adapters.database.async_mongo import DatabaseClient
 
@@ -17,7 +17,6 @@ class ClientRepository:
         
 
         cursor = self._database.get_all("mockDB", default_query)
-        print(cursor)
         cursor.sort("created_at", -1)
         return [ClientModel(**client) async for client in cursor]
 
@@ -45,6 +44,24 @@ class ClientRepository:
     async def create_client(self, client_data: dict) -> ClientModel:
         return await self._database.create("account_requests", client_data)
     
+    async def create_hash(self, hash_data: dict):
+        return await self._database.create("account_hash", hash_data)
+    
+    @overload
+    async def get_hash(self, name: str) -> HashModel: ...
+
+    @overload
+    async def get_hash(self, key: str) -> HashModel: ...
+
+    async def get_hash(self, **query):
+        hash_data = await self._database.get_one("account_hash", query)
+        if not hash_data:
+            raise HashNotFoundException(query)
+        return HashModel(**hash_data)
+    
+    async def delete_hash(self, name: str):
+        return await self._database.delete("account_hash", {"name": name})
+
     async def delete_client(self, client_data: dict | None):
         if client_data and client_data.get("status") != ClientStatus.COMPLETED:
             try:
