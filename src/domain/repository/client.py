@@ -21,9 +21,10 @@ class ClientRepository:
         return [ClientModel(**client) async for client in cursor]
 
     async def get_client_by_name(self, name: str) -> ClientModel:
-        cursor = await self._database.get_all("account_requests", {"client.name": name})
+        cursor = self._database.get_all("account_requests", {"client.name": name})
         cursor.sort("created_at", -1) # type: ignore
-        client = await cursor.to_list(length=1)
+        client = cursor.to_list(length=1)
+
         if not client:
             raise ClientNotFoundException({"name": name})
 
